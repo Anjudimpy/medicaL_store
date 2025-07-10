@@ -154,6 +154,11 @@ export class MemStorage implements IStorage {
       ...medicine,
       id,
       createdAt: new Date(),
+      description: medicine.description || null,
+      genericName: medicine.genericName || null,
+      supplierId: medicine.supplierId || null,
+      quantity: medicine.quantity || 0,
+      minimumStock: medicine.minimumStock || 10,
     };
     this.medicines.set(id, newMedicine);
     return newMedicine;
@@ -204,6 +209,9 @@ export class MemStorage implements IStorage {
       ...customer,
       id,
       createdAt: new Date(),
+      email: customer.email || null,
+      address: customer.address || null,
+      dateOfBirth: customer.dateOfBirth || null,
     };
     this.customers.set(id, newCustomer);
     return newCustomer;
@@ -248,6 +256,9 @@ export class MemStorage implements IStorage {
       ...supplier,
       id,
       createdAt: new Date(),
+      email: supplier.email || null,
+      address: supplier.address || null,
+      contactPerson: supplier.contactPerson || null,
     };
     this.suppliers.set(id, newSupplier);
     return newSupplier;
@@ -285,6 +296,7 @@ export class MemStorage implements IStorage {
       ...sale,
       id: saleId,
       createdAt: new Date(),
+      customerId: sale.customerId || null,
     };
     this.sales.set(saleId, newSale);
 
@@ -295,15 +307,19 @@ export class MemStorage implements IStorage {
         ...item,
         id: saleItemId,
         saleId,
+        medicineId: item.medicineId || null,
       };
       this.saleItems.set(saleItemId, newSaleItem);
       saleItemsData.push(newSaleItem);
 
       // Update medicine stock
-      const medicine = this.medicines.get(item.medicineId);
-      if (medicine) {
-        medicine.quantity -= item.quantity;
-        this.medicines.set(medicine.id, medicine);
+      const medicineId = item.medicineId || null;
+      if (medicineId) {
+        const medicine = this.medicines.get(medicineId);
+        if (medicine) {
+          medicine.quantity -= item.quantity;
+          this.medicines.set(medicine.id, medicine);
+        }
       }
     }
 
