@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import Header from "@/components/layout/header";
 import { 
   PillBottle, 
   AlertTriangle, 
@@ -11,13 +12,30 @@ import {
   Plus, 
   Receipt,
   UserPlus,
-  TrendingUp
+  TrendingUp,
+  Clock,
+  Tablets,
+  Syringe,
+  FlaskRound,
+  Package2,
+  Bandage,
+  Heart,
+  Pill,
+  Droplets,
+  Feather,
+  PenLine,
+  Wheat,
+  SprayCan,
+  
 } from "lucide-react";
+import { FaRupeeSign } from "react-icons/fa";
+
 import { useState } from "react";
 import NewSaleModal from "@/components/modals/new-sale-modal";
 import AddMedicineModal from "@/components/modals/add-medicine-modal";
 import AddCustomerModal from "@/components/modals/add-customer-modal";
 import type { DashboardStats, Sale, Medicine } from "@shared/schema";
+import MedicineCategories from "./medicienCategory";
 
 export default function Dashboard() {
   const [showNewSaleModal, setShowNewSaleModal] = useState(false);
@@ -35,6 +53,7 @@ export default function Dashboard() {
   const { data: lowStockItems, isLoading: lowStockLoading } = useQuery<Medicine[]>({
     queryKey: ["/api/medicines/low-stock"],
   });
+  
 
   const quickActions = [
     {
@@ -55,7 +74,7 @@ export default function Dashboard() {
       title: "Add Customer",
       description: "Register new customer",
       icon: UserPlus,
-      color: "bg-warning",
+      color: "bg-yellow-400",
       onClick: () => setShowAddCustomerModal(true),
     },
     {
@@ -66,9 +85,27 @@ export default function Dashboard() {
       onClick: () => {},
     },
   ];
+  const handleClick=()=>{
+    alert("hi")
+  }
+  // const categories = [
+  //   { name: "Tablets", count: "0 items", icon: Tablets, bgColor: "bg-green-500" },
+  //   { name: "Oientment", count: "0 items", icon: PenLine, bgColor: "bg-red-500" },
+  //   { name: "Injections", count: "0 items", icon: Syringe, bgColor: "bg-blue-500" },
+  //   { name: "Syrups", count: "0 items", icon: FlaskRound, bgColor: "bg-purple-500" },
+  //   { name: "Capsules", count: "0 items", icon: Pill, bgColor: "bg-orange-500" },
+  //   { name: "Lotion", count: "0 items", icon: Droplets, bgColor: "bg-pink-500" },
+  //   { name: "Inhaler", count: "0 items", icon: SprayCan, bgColor: "bg-sky-400" },
+  //   { name: "Diapers", count: "0 items", icon: Feather, bgColor: "bg-yellow-500" },
+  //   { name: "Surgicals", count: "0 items", icon: Heart, bgColor: "bg-teal-500" },
+  //   { name: "Food Products", count: "0 items", icon: Wheat, bgColor: "bg-yellow-700" },
+  // ];
 
   return (
+    <div className="flex-1 flex flex-col overflow-hidden">
+        <Header />  
     <div className="p-6 space-y-8">
+      
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
@@ -316,9 +353,36 @@ export default function Dashboard() {
       </div>
 
       {/* Modals */}
+
+
+      {/* <Card>
+        <CardHeader>
+          <CardTitle>Medicine Categories</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            {categories.map((category, index) => (
+              <div
+                key={index}
+                className="text-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
+                onClick={handleClick}
+              >
+                <div className={`w-12 h-12 ${category.bgColor} rounded-lg flex items-center justify-center mx-auto mb-3`}>
+                  <category.icon className="text-white text-xl" />
+                </div>
+                <p className="font-medium text-gray-900">{category.name}</p>
+                <p className="text-sm text-gray-500">{category.count}</p>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card> */}
+      <MedicineCategories/>
+
       <NewSaleModal open={showNewSaleModal} onOpenChange={setShowNewSaleModal} />
       <AddMedicineModal open={showAddMedicineModal} onOpenChange={setShowAddMedicineModal} />
       <AddCustomerModal open={showAddCustomerModal} onOpenChange={setShowAddCustomerModal} />
-    </div>
+    </div></div>
+  
   );
 }
