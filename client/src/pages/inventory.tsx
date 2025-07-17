@@ -72,7 +72,7 @@ export default function Inventory() {
 
   return (
     <div className="flex-1 overflow-auto">
-      <Header title="Inventory Management" subtitle="Manage your medicine inventory and stock levels" searchTerm onSearchChange onSearchSubmit />
+      <Header title="Inventory Management" subtitle="Manage your medicine inventory and stock levels" />
       
       
       <div className="p-6 space-y-6">
