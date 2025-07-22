@@ -59,6 +59,10 @@ type SaleItem = {
 
 const saleFormSchema = insertSaleSchema.extend({
   items: z.array(insertSaleItemSchema).min(1, "At least one item is required"),
+  discountType: z.enum(["fixed", "percentage"]),
+  discountValue: z.string().refine(val => !isNaN(parseFloat(val)), {
+    message: "Discount must be a number",
+  }),
 });
 
 export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) {
@@ -73,6 +77,8 @@ export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) 
       customerName: "",
       subtotal: "0",
       tax: "0",
+      discountType: "fixed",
+      discountValue: "0",
       total: "0",
       paymentMethod: "cash",
       items: [],
@@ -169,14 +175,24 @@ export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) 
     setSelectedItems(prev => prev.filter(item => item.medicineId !== medicineId));
   };
 
+  const discountType = form.watch("discountType");
+  const discountValue = parseFloat(form.watch("discountValue") || "0");
   const subtotal = selectedItems.reduce((sum, item) => sum + item.total, 0);
   const tax = subtotal * 0.05; // 5% tax
-  const total = subtotal + tax;
+  
+  let discountAmount = 0;
+  if (discountType === "percentage") {
+    discountAmount = (subtotal * discountValue) / 100;
+  } else {
+    discountAmount = discountValue;
+  }
+
+  const total = subtotal + tax - discountAmount;
 
   useEffect(() => {
     form.setValue("subtotal", subtotal.toFixed(2));
     form.setValue("tax", tax.toFixed(2));
-    form.setValue("total", total.toFixed(2));
+    form.setValue("total", total > 0 ? total.toFixed(2) : "0.00");
     form.setValue("items", selectedItems.map(item => ({
       medicineId: item.medicineId,
       medicineName: item.medicineName,
@@ -184,7 +200,7 @@ export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) 
       price: item.price.toFixed(2),
       total: item.total.toFixed(2),
     })));
-  }, [selectedItems, form]);
+  }, [selectedItems, subtotal, tax, total, form]);
 
   const handleCustomerChange = (customerId: string) => {
     const customer = customers?.find(c => c.id.toString() === customerId);
@@ -381,9 +397,54 @@ export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) 
                       <span className="text-sm text-gray-600">Tax (5%):</span>
                       <span className="text-sm font-medium">${tax.toFixed(2)}</span>
                     </div>
+
+                    {/* Discount Input */}
+                    <div className="flex justify-between items-center">
+                      <FormLabel className="text-sm text-gray-600">Discount:</FormLabel>
+                      <div className="flex items-center space-x-2">
+                        <FormField
+                          control={form.control}
+                          name="discountType"
+                          render={({ field }) => (
+                            <Select onValueChange={field.onChange} value={field.value}>
+                              <SelectTrigger className="w-24">
+                                <SelectValue placeholder="Type" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="fixed">$</SelectItem>
+                                <SelectItem value="percentage">%</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="discountValue"
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              className="w-24 h-8 text-right font-medium"
+                              placeholder="0.00"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Discount Amount:</span>
+                      <span className="text-sm font-medium">
+                        -${discountAmount.toFixed(2)}
+                        {discountType === "percentage" && ` (${discountValue}%)`}
+                      </span>
+                    </div>
+
                     <div className="flex justify-between items-center border-t pt-2">
                       <span className="text-lg font-semibold">Total:</span>
-                      <span className="text-lg font-bold text-primary">${total.toFixed(2)}</span>
+                      <span className="text-lg font-bold text-primary">${total > 0 ? total.toFixed(2) : "0.00"}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -434,6 +495,7 @@ export default function NewSaleModal({ open, onOpenChange }: NewSaleModalProps) 
               >
                 {createSaleMutation.isPending ? "Processing..." : "Process Sale"}
               </Button>
+              
             </div>
           </form>
         </Form>

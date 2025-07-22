@@ -103,7 +103,11 @@ export default function Dashboard() {
 
   return (
     <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />  
+        <Header searchTerm={""} onSearchChange={function (term: string): void {
+        throw new Error("Function not implemented.");
+      } } onSearchSubmit={function (): void {
+        throw new Error("Function not implemented.");
+      } } />  
     <div className="p-6 space-y-8">
       
       {/* Stats Cards */}
